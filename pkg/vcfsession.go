@@ -2,25 +2,26 @@ package vcf
 
 import (
 	"bytes"
-	"net/textproto"
 	"crypto/tls"
 	b64 "encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
-	"net/http"
-	"encoding/json"
 	"io/ioutil"
-	"os"
 	"mime/multipart"
-	sl 	"github.com/eshu0/simplelogger/interfaces"
+	"net/http"
+	"net/textproto"
+	"os"
+
+	sl "github.com/eshu0/simplelogger/interfaces"
 )
 
 type VCFSession struct {
-	FQDN           		 	string 						`json:"fqdn"`
-	Base64AuthInfo 		 	string 						`json:"base64authinfo"`
-	Logger          	 	sl.ISimpleLogger 	`json:"-"`
-	InsecureSkipVerify 	bool 							`json:"insecureskipverify"`
+	FQDN               string           `json:"fqdn"`
+	Base64AuthInfo     string           `json:"base64authinfo"`
+	Logger             sl.ISimpleLogger `json:"-"`
+	InsecureSkipVerify bool             `json:"insecureskipverify"`
 }
 
 func NewVCFSession(FQDN string, Logger sl.ISimpleLogger) VCFSession {
@@ -63,7 +64,7 @@ func (vmcfs VCFSession) SendRequest(Resource string, ContentType string, methodi
 	req.Header = createHeaders(vmcfs.Base64AuthInfo)
 
 	if vmcfs.InsecureSkipVerify {
-		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{ InsecureSkipVerify: true }
+		http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	}
 
 	res, err := http.DefaultClient.Do(req)
@@ -109,7 +110,7 @@ func (vmcfs VCFSession) UploadFile(Filepath string, Resource string, MethodIn st
 }
 
 func (vmcfs VCFSession) BuildAuth(Username string, Password string) {
-	AuthInfo := fmt.Sprintf("%s:%s",Username, Password)
+	AuthInfo := fmt.Sprintf("%s:%s", Username, Password)
 	sEnc := b64.StdEncoding.EncodeToString([]byte(AuthInfo))
 	vmcfs.Base64AuthInfo = sEnc
 }

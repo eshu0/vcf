@@ -1,21 +1,17 @@
-package main
+package vcf
 
 import (
 	"archive/tar"
-	"bufio"
 	"fmt"
-	"io"
 	"io/ioutil"
-	"log"
 
 	"os"
 	"path/filepath"
 
-	sl "github.com/eshu0/simplelogger"
 )
 
 type VMUtil struct{
-	Logger          	 	sl.ISimpleLogger
+	Session VCFSession
 }
 
 type Fthing struct {
@@ -23,17 +19,16 @@ type Fthing struct {
 	Body string
 }
 
-func visit(files *[]Fthing) filepath.WalkFunc {
+func visit(files *[]Fthing, util VMUtil) filepath.WalkFunc {
 	return func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			log.Fatal(err)
+			util.Session.Logger.LogErrorE("Visit", err)
 		}
 		ft := Fthing{}
 		ft.Name = path
 		dat, err := ioutil.ReadFile(path)
 		if err != nil {
-			fmt.Println("visit ERROR")
-			fmt.Println(err)
+			util.Session.Logger.LogErrorE("Visit", err)
 			return nil
 		} else {
 			ft.Body = string(dat)
@@ -47,7 +42,7 @@ func (util VMUtil) TarAndZipFolder(root string, outputfilename string) {
 
 	var files = []Fthing{}
 
-	err := filepath.Walk(root, visit(&files))
+	err := filepath.Walk(root, visit(&files, util))
 	if err != nil {
 		panic(err)
 	}
@@ -60,14 +55,14 @@ func (util VMUtil) TarAndZipFolder(root string, outputfilename string) {
 	//var buf bytes.Buffer
 	f, err := os.Create(outputfilename)
 	if err != nil {
-		slog.LogErrorf("%s", err.Error())
+			util.Session.Logger.LogErrorE("TarAndZipFolder", err)
 		return
 	}
 	f.Close()
 
 	file, err := os.OpenFile(outputfilename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		slog.LogErrorf("%s", err.Error())
+			util.Session.Logger.LogErrorE("TarAndZipFolder", err)
 	}
 
 	tw1 := tar.NewWriter(file)
@@ -80,17 +75,17 @@ func (util VMUtil) TarAndZipFolder(root string, outputfilename string) {
 		}
 
 		if err := tw1.WriteHeader(hdr); err != nil {
-			util.Logger.LogErrorf("%s", err.Error())
+			util.Session.Logger.LogErrorE("TarAndZipFolder",err)
 		}
 
 		if _, err := tw1.Write([]byte(file.Body)); err != nil {
-			util.Logger.LogErrorf("%s", err.Error())
+			util.Session.Logger.LogErrorE("TarAndZipFolder",err)
 		}
 		tw1.Flush()
 	}
 
 	if err := tw1.Close(); err != nil {
-		util.Logger.LogErrorf("%s", err.Error())
+		util.Session.Logger.LogErrorE("TarAndZipFolder",err)
 	}
 
 }
