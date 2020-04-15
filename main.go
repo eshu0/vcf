@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 	"fmt"
+	"http"
 
 	sl "github.com/eshu0/simplelogger"
 	vcf "github.com/eshu0/vcf/pkg"
