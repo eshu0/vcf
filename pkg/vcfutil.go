@@ -2,6 +2,7 @@ package vcf
 
 import (
 	"archive/tar"
+	"compress/gzip"
 	"fmt"
 	"io/ioutil"
 
@@ -52,7 +53,6 @@ func (util VMUtil) TarAndZipFolder(root string, outputfilename string) {
 	}
 
 	// Create and add some files to the archive.
-	//var buf bytes.Buffer
 	f, err := os.Create(outputfilename)
 	if err != nil {
 			util.Session.Logger.LogErrorE("TarAndZipFolder", err)
@@ -65,7 +65,15 @@ func (util VMUtil) TarAndZipFolder(root string, outputfilename string) {
 			util.Session.Logger.LogErrorE("TarAndZipFolder", err)
 	}
 
-	tw1 := tar.NewWriter(file)
+	var writer *gzip.Writer
+
+	if writer, err = gzip.NewWriterLevel(file, gzip.BestCompression); err != nil {
+		util.Session.Logger.LogErrorE("TarAndZipFolder", err)
+	}
+
+	defer writer.Close()
+
+	tw1 := tar.NewWriter(writer)
 
 	for _, file := range files {
 		hdr := &tar.Header{
