@@ -20,7 +20,7 @@ type Fthing struct {
 	Body string
 }
 
-func visit(files *[]Fthing, util VMUtil) filepath.WalkFunc {
+func visit(files *[]Fthing, util *VMUtil) filepath.WalkFunc {
 	return func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			util.Session.Logger.LogErrorE("Visit", err)
@@ -39,7 +39,7 @@ func visit(files *[]Fthing, util VMUtil) filepath.WalkFunc {
 	}
 }
 
-func (util VMUtil) TarAndZipFolder(root string, outputfilename string) {
+func (util *VMUtil) TarAndZipFolder(root string, outputfilename string) {
 
 	var files = []Fthing{}
 

@@ -31,7 +31,7 @@ func NewVCFSession(FQDN string, Logger sl.ISimpleLogger) VCFSession {
 	return sess
 }
 
-func (vmcfs VCFSession) LogMessage(Message string) {
+func (vmcfs *VCFSession) LogMessage(Message string) {
 	fmt.Println(Message)
 	vmcfs.Logger.LogInfo(Message)
 }
@@ -50,7 +50,7 @@ func createHeaders(base64AuthInfo string) http.Header {
 	return headers
 }
 
-func (vmcfs VCFSession) SendRequest(Resource string, ContentType string, methodin string, tosend io.Reader) (*http.Response, bool, error) {
+func (vmcfs *VCFSession) SendRequest(Resource string, ContentType string, methodin string, tosend io.Reader) (*http.Response, bool, error) {
 
 	url := fmt.Sprintf("https://%s/v1/%s", vmcfs.FQDN, Resource)
 	req := &http.Request{}
@@ -82,11 +82,11 @@ func (vmcfs VCFSession) SendRequest(Resource string, ContentType string, methodi
 
 }
 
-func (vmcfs VCFSession) GETResourceRequest(Resource string) (*http.Response, bool, error) {
+func (vmcfs *VCFSession) GETResourceRequest(Resource string) (*http.Response, bool, error) {
 	return vmcfs.SendRequest(Resource, "application/json", "GET", nil)
 }
 
-func (vmcfs VCFSession) UploadFile(Filepath string, Resource string, MethodIn string) (*http.Response, bool, error) {
+func (vmcfs *VCFSession) UploadFile(Filepath string, Resource string, MethodIn string) (*http.Response, bool, error) {
 
 	// New multipart writer.
 	body := &bytes.Buffer{}
@@ -109,13 +109,13 @@ func (vmcfs VCFSession) UploadFile(Filepath string, Resource string, MethodIn st
 	return vmcfs.SendRequest(Resource, fmt.Sprintf("multipart/related; boundary=%s", writer.Boundary()), MethodIn, bytes.NewReader(body.Bytes()))
 }
 
-func (vmcfs VCFSession) BuildAuth(Username string, Password string) {
+func (vmcfs *VCFSession) BuildAuth(Username string, Password string) {
 	AuthInfo := fmt.Sprintf("%s:%s", Username, Password)
 	sEnc := b64.StdEncoding.EncodeToString([]byte(AuthInfo))
 	vmcfs.Base64AuthInfo = sEnc
 }
 
-func (vmcfs VCFSession) Save(FilePath string, Log sl.ISimpleLogger) bool {
+func (vmcfs *VCFSession) Save(FilePath string, Log sl.ISimpleLogger) bool {
 	bytes, err1 := json.MarshalIndent(vmcfs, "", "\t") //json.Marshal(p)
 	if err1 != nil {
 		Log.LogErrorf("SaveToFile()", "Marshal json for %s failed with %s ", FilePath, err1.Error())
@@ -132,7 +132,7 @@ func (vmcfs VCFSession) Save(FilePath string, Log sl.ISimpleLogger) bool {
 
 }
 
-func (vmcfs VCFSession) Load(FilePath string, Log sl.ISimpleLogger) (*VCFSession, bool) {
+func (vmcfs *VCFSession) Load(FilePath string, Log sl.ISimpleLogger) (*VCFSession, bool) {
 	ok, err := vmcfs.checkFileExists(FilePath)
 	if ok {
 		bytes, err1 := ioutil.ReadFile(FilePath) //ReadAll(jsonFile)
@@ -166,7 +166,7 @@ func (vmcfs VCFSession) Load(FilePath string, Log sl.ISimpleLogger) (*VCFSession
 	}
 }
 
-func (vmcfs VCFSession) checkFileExists(filename string) (bool, error) {
+func (vmcfs *VCFSession) checkFileExists(filename string) (bool, error) {
 	info, err := os.Stat(filename)
 	if os.IsNotExist(err) {
 		return false, err
