@@ -8,10 +8,9 @@ import (
 
 	"os"
 	"path/filepath"
-
 )
 
-type VMUtil struct{
+type VMUtil struct {
 	Session VCFSession
 }
 
@@ -55,14 +54,14 @@ func (util *VMUtil) TarAndZipFolder(root string, outputfilename string) {
 	// Create and add some files to the archive.
 	f, err := os.Create(outputfilename)
 	if err != nil {
-			util.Session.Logger.LogErrorE("TarAndZipFolder", err)
+		util.Session.Logger.LogErrorE("TarAndZipFolder", err)
 		return
 	}
 	f.Close()
 
 	file, err := os.OpenFile(outputfilename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-			util.Session.Logger.LogErrorE("TarAndZipFolder", err)
+		util.Session.Logger.LogErrorE("TarAndZipFolder", err)
 	}
 
 	var writer *gzip.Writer
@@ -77,23 +76,23 @@ func (util *VMUtil) TarAndZipFolder(root string, outputfilename string) {
 
 	for _, file := range files {
 		hdr := &tar.Header{
-			Name: file.Name,
+			Name: filepath.FromSlash(file.Name),
 			Mode: 0600,
 			Size: int64(len(file.Body)),
 		}
 
 		if err := tw1.WriteHeader(hdr); err != nil {
-			util.Session.Logger.LogErrorE("TarAndZipFolder",err)
+			util.Session.Logger.LogErrorE("TarAndZipFolder", err)
 		}
 
 		if _, err := tw1.Write([]byte(file.Body)); err != nil {
-			util.Session.Logger.LogErrorE("TarAndZipFolder",err)
+			util.Session.Logger.LogErrorE("TarAndZipFolder", err)
 		}
 		tw1.Flush()
 	}
 
 	if err := tw1.Close(); err != nil {
-		util.Session.Logger.LogErrorE("TarAndZipFolder",err)
+		util.Session.Logger.LogErrorE("TarAndZipFolder", err)
 	}
 
 }
