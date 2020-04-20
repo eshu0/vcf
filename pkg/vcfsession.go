@@ -31,9 +31,9 @@ func NewVCFSession(FQDN string, Logger sl.ISimpleLogger) VCFSession {
 	return sess
 }
 
-func (vmcfs *VCFSession) LogMessage(Message string) {
+func (vmcfs *VCFSession) LogMessage(cmd string, Message string) {
 	fmt.Println(Message)
-	vmcfs.Logger.LogInfo(Message)
+	vmcfs.Logger.LogInfo(cmd, Message)
 }
 
 func createHeaders(base64AuthInfo string) http.Header {
@@ -69,12 +69,12 @@ func (vmcfs *VCFSession) SendRequest(Resource string, ContentType string, method
 
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
-		vmcfs.LogMessage(fmt.Sprintf("Failed to connect with error %s\n", err))
+		vmcfs.LogMessage("SendRequest", fmt.Sprintf("Failed to connect with error %s\n", err))
 		return nil, false, err
 	}
 
 	if res == nil {
-		vmcfs.LogMessage(fmt.Sprintf("Failed to connect with error result was empty"))
+		vmcfs.LogMessage("SendRequest", fmt.Sprintf("Failed to connect with error result was empty"))
 		return nil, false, errors.New("Failed to connect with error result was empty")
 	} else {
 		return res, true, nil

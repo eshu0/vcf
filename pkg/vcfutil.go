@@ -5,9 +5,9 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io/ioutil"
-
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type VMUtil struct {
@@ -61,7 +61,6 @@ func (util *VMUtil) TarAndZipFolder(root string, outputfilename string) {
 
 	file, err := os.OpenFile(outputfilename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		util.Session.Logger.LogErrorE("TarAndZipFolder", err)
 	}
 
 	var writer *gzip.Writer
@@ -75,8 +74,13 @@ func (util *VMUtil) TarAndZipFolder(root string, outputfilename string) {
 	tw1 := tar.NewWriter(writer)
 
 	for _, file := range files {
+
+		util.Session.Logger.LogInfo("TarAndZipFolder", fmt.Sprintf("Adding %s", file.Name))
+		unixpath := switchtoUnix(file.Name)
+		util.Session.Logger.LogInfo("TarAndZipFolder", fmt.Sprintf("switched to unix %s", unixpath))
+
 		hdr := &tar.Header{
-			Name: filepath.FromSlash(file.Name),
+			Name: unixpath,
 			Mode: 0600,
 			Size: int64(len(file.Body)),
 		}
@@ -95,4 +99,8 @@ func (util *VMUtil) TarAndZipFolder(root string, outputfilename string) {
 		util.Session.Logger.LogErrorE("TarAndZipFolder", err)
 	}
 
+}
+
+func switchtoUnix(filname string) string {
+	return strings.Replace(filname, "\\", "/", -1)
 }
