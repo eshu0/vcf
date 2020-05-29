@@ -38,13 +38,14 @@ func visit(files *[]Fthing, util *VMUtil) filepath.WalkFunc {
 	}
 }
 
-func (util *VMUtil) TarAndZipFolder(root string, outputfilename string) {
+func (util *VMUtil) TarAndZipFolder(roots []string, outputfilename string) {
 
 	var files = []Fthing{}
-
-	err := filepath.Walk(root, visit(&files, util))
-	if err != nil {
-		panic(err)
+	for _, root := range roots {
+		err := filepath.Walk(root, visit(&files, util))
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	for _, file := range files {

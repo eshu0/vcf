@@ -19,6 +19,7 @@ import (
 
 type VCFSession struct {
 	FQDN               string           `json:"fqdn"`
+	Domain               string         `json:"domain"`
 	Base64AuthInfo     string           `json:"base64authinfo"`
 	Logger             sl.ISimpleLogger `json:"-"`
 	InsecureSkipVerify bool             `json:"insecureskipverify"`
