@@ -110,7 +110,7 @@ func (vmcfs *VCFSession) UploadFile(Filepath string, Resource string, MethodIn s
 	// Close multipart writer.
 	writer.Close()
 
-	return vmcfs.SendRequest(Resource, fmt.Sprintf("multipart/related; boundary=%s", writer.Boundary()), MethodIn, bytes.NewReader(body.Bytes()))
+	return vmcfs.SendRequest(Resource, fmt.Sprintf("multipart/form-data; boundary=%s", writer.Boundary()), MethodIn, bytes.NewReader(body.Bytes()))
 }
 
 func (vmcfs *VCFSession) BuildAuth(Username string, Password string) {
