@@ -33,7 +33,9 @@ func NewVCFSession(FQDN string, Logger sl.ISimpleLogger) VCFSession {
 
 func (vmcfs *VCFSession) LogMessage(cmd string, Message string) {
 	fmt.Println(Message)
-	vmcfs.Logger.LogInfo(cmd, Message)
+	if vmcfs.Logger != nil {
+		vmcfs.Logger.LogInfo(cmd, Message)
+	}
 }
 
 func createHeaders(base64AuthInfo string) http.Header {
@@ -53,6 +55,8 @@ func createHeaders(base64AuthInfo string) http.Header {
 func (vmcfs *VCFSession) SendRequest(Resource string, ContentType string, methodin string, tosend io.Reader) (*http.Response, bool, error) {
 
 	url := fmt.Sprintf("https://%s/v1/%s", vmcfs.FQDN, Resource)
+	vmcfs.LogMessage("SendRequest", fmt.Sprintf("Sending data to: %s\n", url))
+
 	req := &http.Request{}
 
 	if tosend != nil {
