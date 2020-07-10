@@ -101,7 +101,7 @@ func (vmcfs *VCFSession) UploadFile(Filepath string, Resource string, MethodIn s
 	mediaData, _ := ioutil.ReadFile(Filepath)
 	mediaHeader := textproto.MIMEHeader{}
 	mediaHeader.Set("Content-Type", "application/octet-stream")
-	mediaHeader.Set("Content-Disposition", fmt.Sprintf("form-data; name=file; filename=\"%v\".", Filepath))
+	mediaHeader.Set("Content-Disposition", fmt.Sprintf("form-data; name=file; filename=\"%s\".", Filepath))
 	mediaHeader.Set("Content-ID", "media")
 	mediaHeader.Set("Content-Filename", Filepath)
 
@@ -111,7 +111,7 @@ func (vmcfs *VCFSession) UploadFile(Filepath string, Resource string, MethodIn s
 	// Close multipart writer.
 	writer.Close()
 
-	return vmcfs.SendRequest(Resource, fmt.Sprintf("multipart/form-data; boundary=%s", writer.Boundary()), MethodIn, bytes.NewReader(body.Bytes()))
+	return vmcfs.SendRequest(Resource, fmt.Sprintf("multipart/form-data; boundary=%s;", writer.Boundary()), MethodIn, bytes.NewReader(body.Bytes()))
 }
 
 func (vmcfs *VCFSession) BuildAuth(Username string, Password string) {
